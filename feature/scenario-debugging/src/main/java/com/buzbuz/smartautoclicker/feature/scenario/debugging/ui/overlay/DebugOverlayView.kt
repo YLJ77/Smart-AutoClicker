@@ -85,8 +85,8 @@ class DebugOverlayView(context: Context) : View(context) {
         }
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        canvas?.drawRect(conditionBorders, conditionBordersPaint)
+        canvas.drawRect(conditionBorders, conditionBordersPaint)
     }
 }

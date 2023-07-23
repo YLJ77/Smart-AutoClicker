@@ -210,10 +210,25 @@ class SmartAutoClickerService : AccessibilityService(), AndroidExecutor {
             .setLocalOnly(true)
             .build()
     }
+    fun execClick(gestureDescription: GestureDescription) {
+        val result = dispatchGesture(
+            gestureDescription,
+            object : GestureResultCallback() {
+                override fun onCompleted(gestureDescription: GestureDescription?) {
+                 println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@onCompleted:")
+                }
+                override fun onCancelled(gestureDescription: GestureDescription?) {
+                    Log.w(TAG, "Gesture cancelled: $gestureDescription")
+                }
+            },
+            null,
+        )
+        println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@dispatchGesture result: $result")
+    }
 
     override suspend fun executeGesture(gestureDescription: GestureDescription) {
         suspendCoroutine<Unit?> { continuation ->
-            dispatchGesture(
+            val result = dispatchGesture(
                 gestureDescription,
                 object : GestureResultCallback() {
                     override fun onCompleted(gestureDescription: GestureDescription?) = continuation.resume(null)
@@ -224,6 +239,7 @@ class SmartAutoClickerService : AccessibilityService(), AndroidExecutor {
                 },
                 null,
             )
+            println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@dispatchGesture result: $result")
         }
     }
 

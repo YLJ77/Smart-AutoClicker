@@ -96,6 +96,7 @@ internal class ActionExecutor(
         )
 
         withContext(Dispatchers.Main) {
+            println("=============================click,x:${click.x},y:${click.y},randomize:${randomize}=============================")
             androidExecutor.executeGesture(clickBuilder.build())
         }
     }

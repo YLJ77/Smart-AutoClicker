@@ -16,8 +16,11 @@
  */
 package com.buzbuz.smartautoclicker.activity
 
+import android.accessibilityservice.GestureDescription
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.graphics.Path
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
 import android.util.Log
@@ -42,9 +45,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 
 import com.buzbuz.smartautoclicker.R
+import com.buzbuz.smartautoclicker.SmartAutoClickerService
 import com.buzbuz.smartautoclicker.activity.PermissionsDialogFragment.Companion.FRAGMENT_TAG_PERMISSION_DIALOG
 import com.buzbuz.smartautoclicker.feature.backup.ui.BackupDialogFragment.Companion.FRAGMENT_TAG_BACKUP_DIALOG
 import com.buzbuz.smartautoclicker.core.domain.model.scenario.Scenario
+import com.buzbuz.smartautoclicker.core.processing.data.AndroidExecutor
 import com.buzbuz.smartautoclicker.databinding.DialogEditBinding
 import com.buzbuz.smartautoclicker.databinding.FragmentScenariosBinding
 import com.buzbuz.smartautoclicker.feature.scenario.config.utils.ALPHA_DISABLED_ITEM
@@ -52,8 +57,11 @@ import com.buzbuz.smartautoclicker.feature.scenario.config.utils.ALPHA_ENABLED_I
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.shape.MaterialShapeDrawable
+import kotlinx.coroutines.Dispatchers
 
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 /**
  * Fragment displaying the list of click scenario and the creation dialog.
@@ -283,11 +291,49 @@ class ScenarioListFragment : Fragment(), PermissionsDialogFragment.PermissionDia
         scenarioViewModel.toggleScenarioSelectionForBackup(scenario)
     }
 
+    private fun createClick(x: Float, y: Float): GestureDescription {
+        val DURATION = 1
+        val clickPath = Path()
+        val clickBuilder = GestureDescription.Builder()
+        clickPath.moveTo(x, y)
+        clickBuilder.addStroke(
+            GestureDescription.StrokeDescription(
+                clickPath,
+                0,
+                DURATION.toLong(),
+            )
+        )
+        return clickBuilder.build()
+    }
+
     /**
      * Called when the user clicks on the add scenario button.
      * Create and show the [dialog]. Upon Ok press, creates the scenario.
      */
     private fun onCreateClicked() {
+        println("on create clicked")
+
+        if (!scenarioViewModel.arePermissionsGranted()) {
+            activity?.let {
+                PermissionsDialogFragment.newInstance().show(it.supportFragmentManager, FRAGMENT_TAG_PERMISSION_DIALOG)
+            }
+            return
+        }
+/*
+        getSystemService(requireContext(), MediaProjectionManager::class.java)?.let { projectionManager ->
+            projectionActivityResult.launch(projectionManager.createScreenCaptureIntent())
+            // 延迟1秒执行
+        }
+*/
+        Thread.sleep(4000)
+        print("----------------------------start click");
+        val service = SmartAutoClickerService();
+        runBlocking {
+            service.executeGesture(createClick(723f, 2564f))
+        }
+        return
+
+
         val dialogViewBinding = DialogEditBinding.inflate(LayoutInflater.from(context))
         showDialog(MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.dialog_title_add_scenario)

@@ -46,7 +46,7 @@ allprojects {
 }
 
 ext {
-    compileSdkVersion = 33
+    compileSdkVersion = 34
     minSdkVersion = 24
 
     // AndroidX dependencies
